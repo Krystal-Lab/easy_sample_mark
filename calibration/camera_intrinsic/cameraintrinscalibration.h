@@ -21,6 +21,9 @@ public:
 
     void setInitData(const int camera_model, const cv::Size &image_size, const cv::Size &board_size,
                      const cv::Size &square_size, const std::string &save_result_dir);
+
+    void setCameraParam(const int camera_model, const cv::Mat& intrinsic, const cv::Mat &distortion);
+
     bool calibrating(const std::vector<std::string> &images_list, std::string &err_result);
 
     int getSuccessImage();
@@ -32,7 +35,7 @@ public:
     void saveDrawCornerImage(const std::vector<std::string> &images_list);
     void saveUndistortImage(const std::vector<std::string> &images_list);
 
-    void getIntrinsicParam(cv::Matx33f &intrinsic, std::vector<float> &distortion);
+    void getIntrinsicParam(cv::Matx33d &intrinsic, std::vector<double> &distortion);
 
 private:
     void getCorners(const std::vector<std::string> &images_list);
@@ -49,7 +52,7 @@ private:
     cv::Size image_size;
     cv::Size board_size;
     cv::Size square_size;
-    cv::Matx33f intrinsic_matrix;
+    cv::Matx33d intrinsic_matrix;
     cv::Vec4d distortion_coeffs;
     cv::Mat pinhole_distortion_coeffs;
     std::vector<cv::Vec3d> rotation_vectors;                           /* 每幅图像的旋转向量 */

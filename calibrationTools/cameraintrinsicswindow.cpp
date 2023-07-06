@@ -65,13 +65,11 @@ void CameraIntrinsicsWindow::slotImageItem(QListWidgetItem *item)
     {
         int index = imageListWidget->row(item);
         currentImagePath = imagePath;
+        calibrationButton->setEnabled(true);
         cv::Mat image = calibrationProcess.getDrawCornerImage(currentImagePath.toStdString(), index);
         if(image.empty())
         {
             imageShow->setNewQImage(currentImage);
-            calibrationButton->setEnabled(true);
-            undistortButton->setEnabled(false);
-            saveResultButton->setEnabled(false);
         }
         else
         {
@@ -161,8 +159,8 @@ void CameraIntrinsicsWindow::slotShowUndistortImage()
 void CameraIntrinsicsWindow::slotSaveCalibrateResult()
 {
     QString saveJsonPath = saveDir + "/" + "camera_intrinsic" + ".json";
-    cv::Matx33f intrinsic;
-    std::vector<float> distortion;
+    cv::Matx33d intrinsic;
+    std::vector<double> distortion;
     QJsonDocument doc;
     QByteArray data;
     QJsonObject jsonData;
@@ -193,7 +191,7 @@ void CameraIntrinsicsWindow::slotSaveCalibrateResult()
     QJsonArray distortionData;
     for(size_t i = 0; i < distortion.size(); i++)
     {
-        distortionData << distortion[i];
+        distortionData << static_cast<float>(distortion[i]);
     }
     jsonData.insert("camera_distortion", distortionData);
     QJsonArray intrinsicData;
@@ -202,7 +200,7 @@ void CameraIntrinsicsWindow::slotSaveCalibrateResult()
         QJsonArray tempData;
         for(int c = 0; c < intrinsic.cols; c++)
         {
-            tempData.append(intrinsic(r, c));
+            tempData.append(static_cast<float>(intrinsic(r, c)));
         }
         intrinsicData.append(tempData);
     }

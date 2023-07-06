@@ -17,10 +17,10 @@ CameraIntrinsCalibration::CameraIntrinsCalibration()
     corners_Seq.clear();
     camera_model = 1;
 
-    intrinsic_matrix = cv::Matx33f::zeros();
+    intrinsic_matrix = cv::Matx33d::zeros();
     distortion_coeffs = cv::Vec4d(0.0, 0.0, 0.0, 0.0);
 
-    pinhole_distortion_coeffs = cv::Mat(1, 5, CV_64FC1, cv::Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
+    pinhole_distortion_coeffs = cv::Mat(5, 1, CV_64FC1, cv::Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
 }
 
 CameraIntrinsCalibration::~CameraIntrinsCalibration()
@@ -44,13 +44,36 @@ void CameraIntrinsCalibration::setInitData(const int camera_model, const cv::Siz
     error_list.clear();
 }
 
+void CameraIntrinsCalibration::setCameraParam(const int camera_model, const cv::Mat& intrinsic, const cv::Mat &distortion)
+{
+    this->camera_model = camera_model;
+    for(int r = 0; r < intrinsic_matrix.rows; r++)
+    {
+        for(int c = 0; c < intrinsic_matrix.cols; c++)
+        {
+            intrinsic_matrix(r, c) = intrinsic.at<float>(r, c);
+        }
+    }
+
+    if(this->camera_model == 1)
+    {
+        distortion.copyTo(pinhole_distortion_coeffs);
+    }
+    else if(this->camera_model == 2)
+    {
+        for(int index = 0; index < 4; index++)
+        {
+            distortion_coeffs[index] = distortion.at<float>(index, 0);
+        }
+    }
+}
+
 bool CameraIntrinsCalibration::calibrating(const std::vector<std::string> &images_list, std::string &err_result)
 {
     bool success = false;
     std::vector<std::vector<cv::Point2f>> use_image_corners;
     std::vector<std::vector<cv::Point3f>> object_points;
     std::vector<int> point_counts;
-    int flags = 0;
 
     is_use.clear();
     rotation_vectors.clear();
@@ -72,6 +95,7 @@ bool CameraIntrinsCalibration::calibrating(const std::vector<std::string> &image
         }
         else if(this->camera_model == 2)
         {
+            int flags = 0;
             flags |= cv::fisheye::CALIB_RECOMPUTE_EXTRINSIC;
             flags |= cv::fisheye::CALIB_CHECK_COND;
             flags |= cv::fisheye::CALIB_FIX_SKEW;
@@ -146,21 +170,43 @@ cv::Mat CameraIntrinsCalibration::getUndistortImage(const std::string &image_pat
     cv::Mat R = cv::Mat::eye(3, 3, CV_32F);
     cv::Mat image = cv::imread(image_path);
     cv::Mat result = image.clone();
+    cv::Matx33f intrinsic_undis = cv::Matx33f::zeros();
+    for(int r = 0; r < intrinsic_matrix.rows; r++)
+    {
+        for(int c = 0; c < intrinsic_matrix.cols; c++)
+        {
+            intrinsic_undis(r, c) = intrinsic_matrix(r, c);
+        }
+    }
     if(this->camera_model == 1)
     {
-         // 摄像机的5个畸变系数，(k1,k2,p1,p2[,k3[,k4,k5,k6]])
+        // 摄像机的5个畸变系数，(k1,k2,p1,p2[,k3[,k4,k5,k6]])
+//        intrinsic_undis(0, 0) /= 4;
+//        intrinsic_undis(1, 1) /= 4;
+//        intrinsic_undis(0,2) *= 4;
+//        intrinsic_undis(1,2) *= 4;
 //        cv::initUndistortRectifyMap(intrinsic_matrix, pinhole_distortion_coeffs,
-//                                    R, intrinsic_matrix,image_size, CV_32FC1, mapx, mapy);
+//                                    R, intrinsic_undis,
+//                                    cv::Size(intrinsic_undis(0, 2) * 2,
+//                                             intrinsic_undis(1, 2) * 2),
+//                                             CV_32FC1, mapx, mapy);
 //        cv::remap(image, result, mapx, mapy, cv::INTER_LINEAR);
         cv::undistort(image, result, intrinsic_matrix, pinhole_distortion_coeffs);
     }
     else if(this->camera_model == 2)
     {
-        //cv::fisheye::initUndistortRectifyMap(intrinsic_matrix,distortion_coeffs,R,intrinsic_matrix,image_size,CV_32FC1,mapx,mapy);
+//        int x_expand = 0, y_expand = 200;		//x,y方向的扩展(x横向，y纵向)，适当增大可以不损失原图像信息
+//        cv::Mat testImage;
+//        cv::copyMakeBorder(image, testImage,(int)(y_expand/2),(int)(y_expand/2),
+//                           (int)(x_expand/2),(int)(x_expand/2), cv::BORDER_CONSTANT);
+//        cv::fisheye::initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, R,
+//                                             intrinsic_undis, image_size, CV_32FC1, mapx, mapy);
         cv::fisheye::initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, R,
-                                         cv::getOptimalNewCameraMatrix(intrinsic_matrix, distortion_coeffs, image_size, 1, image_size, 0),
-                                         image_size, CV_32FC1, mapx, mapy);
-        cv::remap(image, result, mapx, mapy, cv::INTER_LINEAR);
+                                             cv::getOptimalNewCameraMatrix(intrinsic_matrix, distortion_coeffs,
+                                                                           image_size, 1, image_size, 0),
+                                             image_size, CV_32FC1, mapx, mapy);
+        // result = testImage.clone();
+        cv::remap(image, result, mapx, mapy, cv::INTER_LINEAR, cv::BORDER_CONSTANT);
     }
     return result;
 }
@@ -215,7 +261,7 @@ void CameraIntrinsCalibration::saveUndistortImage(const std::vector<std::string>
     }
 }
 
-void CameraIntrinsCalibration::getIntrinsicParam(cv::Matx33f &intrinsic, std::vector<float> &distortion)
+void CameraIntrinsCalibration::getIntrinsicParam(cv::Matx33d &intrinsic, std::vector<double> &distortion)
 {
     distortion.clear();
     intrinsic = intrinsic_matrix;
@@ -244,7 +290,7 @@ void CameraIntrinsCalibration::getIntrinsicParam(cv::Matx33f &intrinsic, std::ve
 
 void CameraIntrinsCalibration::getCorners(const std::vector<std::string> &images_list)
 {
-    bool use_sb = true;
+    bool use_sb = false;
     int image_count = images_list.size();
     int count = 0;
     AutoImagePicker image_selector(image_size.width, image_size.height,
@@ -268,23 +314,23 @@ void CameraIntrinsCalibration::getCorners(const std::vector<std::string> &images
                 is_use.push_back(false);
                 std::cout << "找不到角点，需删除图片文件" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
             }
-            else if (image_selector.addImage(corners))
+            else /*if (image_selector.addImage(corners))*/
             {
                 count = count + corners.size();
                 corners_Seq.push_back(corners);
                 is_use.push_back(true);
                 std::cout << "Frame corner#" << i + 1 << "...end" << std::endl;
             }
-            else
-            {
-                corners.clear();
-                corners_Seq.push_back(corners);
-                is_use.push_back(false);
-                std::cout << "找到角点不可使用:" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
-            }
+//            else
+//            {
+//                corners.clear();
+//                corners_Seq.push_back(corners);
+//                is_use.push_back(false);
+//                std::cout << "找到角点不可使用:" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
+//            }
 
-            if (image_selector.status())
-                break;
+//            if (image_selector.status())
+//                break;
         }
         else
         {
@@ -297,7 +343,7 @@ void CameraIntrinsCalibration::getCorners(const std::vector<std::string> &images
                 is_use.push_back(false);
                 std::cout << "找不到角点，需删除图片文件" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
             }
-            else if (image_selector.addImage(corners))
+            else /*if (image_selector.addImage(corners))*/
             {
                 cv::Mat imageGray;
                 cv::cvtColor(image, imageGray, cv::COLOR_BGR2GRAY);
@@ -310,18 +356,21 @@ void CameraIntrinsCalibration::getCorners(const std::vector<std::string> &images
                 is_use.push_back(true);
                 std::cout << "Frame corner#" << i + 1 << "...end" << std::endl;
             }
-            else
-            {
-                corners.clear();
-                corners_Seq.push_back(corners);
-                is_use.push_back(false);
-                std::cout << "找到角点不可使用:" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
-            }
-            if (image_selector.status())
-                break;
+//            else
+//            {
+//                corners.clear();
+//                corners_Seq.push_back(corners);
+//                is_use.push_back(false);
+//                std::cout << "找到角点不可使用:" << images_list[i] << "重新排列文件名，再次标定" << std::endl;
+//            }
+
+//            if (image_selector.status())
+//                break;
         }
 
     }
+
+    saveDrawCornerImage(images_list);
 }
 
 void CameraIntrinsCalibration::getCornersCoordinate(std::vector<std::vector<cv::Point3f>> &object_points,

@@ -17,6 +17,7 @@
 #include "baseAlgorithm/common_transform.h"
 #include "baseAlgorithm/coordinate_transform.h"
 #include "utilityGUI/customWindow/mytextbrowser.h"
+#include "saveMarkData/calibrationparamload.h"
 #include "imagelabel.h"
 
 #include <calibration/radar_camera/projector_radar.hpp>
@@ -114,6 +115,8 @@ private:
 
     QList<QPoint> selectPointList;
 
+    CalibrationParamLoad paramLoad;
+
     void init();
     void initUI();
     void initConnect();
@@ -121,8 +124,6 @@ private:
     void updateButtonStatus();
     void calibrationInit();
 
-    bool loadCameraIntrinsic(const QString &filePath);
-    bool loadCameraHomography(const QString &filePath);
     bool loadExtrinsic(const QString &filePath);
     bool loadRadarData(const QString &filePath);
 };

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.0, 2023-04-23T16:19:26. -->
+<!-- Written by QtCreator 4.15.0, 2023-07-06T16:25:07. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -295,10 +295,11 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
-     <value type="QString">LD_LIBRARY_PATH=/home/lpj/software/opencv451/lib:/home/lpj/software/Qt5_12_11/5.12.11/gcc_64/lib:/home/lpj/software/vtk820/lib:/home/lpj/software/PCL_1_11_1/lib</value>
+     <value type="QString">LD_LIBRARY_PATH=/home/lpj/software/opencv451/lib:/home/lpj/software/Qt5_12_11/5.12.11/gcc_64/lib:/home/lpj/software/PCL_1_11_1/lib:/home/lpj/software/vtk820/lib</value>
     </valuelist>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/lpj/github/easy_sample_mark/easy_sample_mark.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/lpj/github/easy_sample_mark/easy_sample_mark.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">easy_sample_mark2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/lpj/easy_data/easy_sample_mark/easy_sample_mark.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/lpj/easy_data/easy_sample_mark/easy_sample_mark.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

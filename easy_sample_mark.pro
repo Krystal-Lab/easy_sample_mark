@@ -32,6 +32,7 @@ SOURCES += main.cpp\
     drawShape/drawpointsshape.cpp \
     mainwindow.cpp \
     autoSampleMark/autosamplemarkthread.cpp \
+    saveMarkData/calibrationparamload.cpp \
     videoTools/croppingvideothread.cpp \
     videoTools/fromvideotopicturewindow.cpp \
     videoTools/videocroppingwindow.cpp \
@@ -106,6 +107,7 @@ HEADERS  += controlwindow.h \
     drawShape/drawpointsshape.h \
     mainwindow.h \
     autoSampleMark/autosamplemarkthread.h \
+    saveMarkData/calibrationparamload.h \
     videoTools/croppingvideothread.h \
     videoTools/fromvideotopicturewindow.h \
     videoTools/videocroppingwindow.h \
