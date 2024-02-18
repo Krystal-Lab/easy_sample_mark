@@ -387,6 +387,15 @@ void MainWindow::slotRadarCameraManual()
     radarCameraManualWindow = nullptr;
 }
 
+void MainWindow::slotLidarRadarManual()
+{
+    lidarRadarManualWindow = new LidarRadarManualWindow();
+    lidarRadarManualWindow->setModal(true);
+    lidarRadarManualWindow->exec();
+    lidarRadarManualWindow->deleteLater();
+    lidarRadarManualWindow = nullptr;
+}
+
 void MainWindow::slotAbout()
 {
     QMessageBox::about(this, tr("样本标注系统"), tr("样本标注系统 版本 %1").arg(qApp->applicationVersion()));
@@ -564,6 +573,9 @@ void MainWindow::initData()
 
     birdViewPorcess = nullptr;
     cameraIntrinsicsWindow = nullptr;
+    cameraVerificationWindow = nullptr;
+    radarCameraManualWindow = nullptr;
+    lidarRadarManualWindow = nullptr;
 
     openDataDir = ".";
     loadDataType = MarkDataType::UNKNOWN;
@@ -620,6 +632,7 @@ void MainWindow::initAction()
     cameraIntrinsicsAction = new QAction(tr("相机内参标定"), this);
     cameraVerificationAction = new QAction(tr("相机畸变验证"), this);
     radarCameraManualCalibratAction = new QAction(tr("radar-camera手动标定"), this);
+    lidarRadarManualCalibratAction = new QAction(tr("lidar-radar手动标定"), this);
 
     //about
     aboutAction = new QAction(tr("关于"), this);
@@ -689,6 +702,7 @@ void MainWindow::initMenuBar()
     calibrationMenu->addAction(cameraIntrinsicsAction);
     calibrationMenu->addAction(cameraVerificationAction);
     calibrationMenu->addAction(radarCameraManualCalibratAction);
+    calibrationMenu->addAction(lidarRadarManualCalibratAction);
     //about
     aboutMenu = new QMenu(tr("关于"), this);
     aboutMenu->addAction(aboutAction);
@@ -795,6 +809,7 @@ void MainWindow::initConnect()
     connect(cameraIntrinsicsAction, &QAction::triggered, this, &MainWindow::slotCameraIntrinsics);
     connect(cameraVerificationAction, &QAction::triggered, this, &MainWindow::slotCameraVerification);
     connect(radarCameraManualCalibratAction, &QAction::triggered, this, &MainWindow::slotRadarCameraManual);
+    connect(lidarRadarManualCalibratAction, &QAction::triggered, this, &MainWindow::slotLidarRadarManual);
 
     //about
     connect(aboutAction, &QAction::triggered, this, &MainWindow::slotAbout);

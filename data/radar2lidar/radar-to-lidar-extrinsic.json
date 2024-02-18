@@ -1,0 +1,12 @@
+{
+    "radar-lidar-extrinsic": {
+        "sensor_name": "radar",
+        "target_sensor_name": "lidar",
+        "device_type": "relational",
+        "param_type": "extrinsic",
+        "param": {
+            "translation": [1.9119, 0.421622, -1.06],
+            "rotation": [0.999969, 0, 0, -0.00785389]
+        }
+    }
+}

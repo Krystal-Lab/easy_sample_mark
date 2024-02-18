@@ -59,6 +59,25 @@ void PointCloudViewer::getPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr &result)
     }
 }
 
+void PointCloudViewer::setRadarPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr &points)
+{
+    int index = 0;
+    viewer_->removeAllShapes();
+    for(const pcl::PointXYZ &point: points->points)
+    {
+        QString boxId = QString("box_%1").arg(index);
+        Eigen::AngleAxisf rotation_vector(0, Eigen::Vector3f(0, 0, 1));
+        Eigen::Vector3f center(point.x, point.y, point.z);
+        this->viewer_->addCube(center, Eigen::Quaternionf(rotation_vector), 0.3, 0.3, 0.3, boxId.toStdString());
+        this->viewer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, \
+                                            pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, boxId.toStdString());
+        this->viewer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 255, 0, boxId.toStdString());
+        this->viewer_->setShapeRenderingProperties (pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 3, boxId.toStdString());
+        index++;
+    }
+    this->update();
+}
+
 void PointCloudViewer::enterEvent(QEvent *e)
 {
     if(isSelect)
@@ -169,8 +188,8 @@ void PointCloudViewer::drawTypeColorPointCloud()
 {
     viewer_->removePointCloud("srcCloud");
     geometryHandler.reset(new pcl::visualization::PointCloudGeometryHandlerXYZ<pcl::PCLPointCloud2>(srcCloud));
-    if(PointCloudParamterConfig::getColorRenderType() == "intensity" && \
-       PointCloudParamterConfig::getFieldsNumber() >= 4)
+
+    if(PointCloudParamterConfig::getColorRenderType() == "intensity")
     {
         colorHandler.reset(new pcl::visualization::PointCloudColorHandlerGenericField<pcl::PCLPointCloud2>(srcCloud,
                                                                                                            "intensity"));

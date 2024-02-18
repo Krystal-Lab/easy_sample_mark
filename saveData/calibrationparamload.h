@@ -12,7 +12,8 @@ public:
     CalibrationParamLoad(QObject *parent = nullptr);
     ~CalibrationParamLoad();
 
-    bool loadCameraIntrinsic(const QString &filePath, cv::Mat &cameraInstrinsics, cv::Mat &distortionCoefficients);
+    bool loadCameraIntrinsic(const QString &filePath, cv::Mat &cameraInstrinsics, cv::Mat &distortionCoefficients,
+                             cv::Point2f &scale_focal, cv::Point2f &shift_center);
     bool loadCameraHomography(const QString &filePath, cv::Mat &homography);
 
 signals:

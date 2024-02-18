@@ -26,13 +26,13 @@ SOURCES += main.cpp\
     calibrationTools/cameraintrinsicsthread.cpp \
     calibrationTools/cameraverificationwindow.cpp \
     calibrationTools/lidarcameracalibratwindow.cpp \
+    calibrationTools/lidarradarmanualwindow.cpp \
     calibrationTools/pointcloudviewer.cpp \
     calibrationTools/radarcameramanualwindow.cpp \
     controlwindow.cpp \
     drawShape/drawpointsshape.cpp \
     mainwindow.cpp \
     autoSampleMark/autosamplemarkthread.cpp \
-    saveMarkData/calibrationparamload.cpp \
     videoTools/croppingvideothread.cpp \
     videoTools/fromvideotopicturewindow.cpp \
     videoTools/videocroppingwindow.cpp \
@@ -102,12 +102,12 @@ HEADERS  += controlwindow.h \
     calibrationTools/cameraintrinsicsthread.h \
     calibrationTools/cameraverificationwindow.h \
     calibrationTools/lidarcameracalibratwindow.h \
+    calibrationTools/lidarradarmanualwindow.h \
     calibrationTools/pointcloudviewer.h \
     calibrationTools/radarcameramanualwindow.h \
     drawShape/drawpointsshape.h \
     mainwindow.h \
     autoSampleMark/autosamplemarkthread.h \
-    saveMarkData/calibrationparamload.h \
     videoTools/croppingvideothread.h \
     videoTools/fromvideotopicturewindow.h \
     videoTools/videocroppingwindow.h \

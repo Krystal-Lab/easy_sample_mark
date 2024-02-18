@@ -15,7 +15,8 @@ CalibrationParamLoad::~CalibrationParamLoad()
 
 }
 
-bool CalibrationParamLoad::loadCameraIntrinsic(const QString &filePath, cv::Mat &cameraInstrinsics, cv::Mat &distortionCoefficients)
+bool CalibrationParamLoad::loadCameraIntrinsic(const QString &filePath, cv::Mat &cameraInstrinsics, cv::Mat &distortionCoefficients,
+                                               cv::Point2f &scale_focal, cv::Point2f &shift_center)
 {
     bool result = false;
     QByteArray data;
@@ -60,6 +61,28 @@ bool CalibrationParamLoad::loadCameraIntrinsic(const QString &filePath, cv::Mat 
                     }
 
                     result = true;
+                }
+
+                if(jsonObject.contains("scale_focal_xy"))
+                {
+                    QJsonArray distList = jsonObject.take("scale_focal_xy").toArray();
+                    scale_focal = cv::Point2f(static_cast<float>(distList.at(0).toDouble()),
+                                               static_cast<float>(distList.at(1).toDouble()));
+                }
+                else
+                {
+                    scale_focal = cv::Point2f(1, 1);
+                }
+
+                if(jsonObject.contains("shift_center_xy"))
+                {
+                    QJsonArray distList = jsonObject.take("shift_center_xy").toArray();
+                    shift_center = cv::Point2f(static_cast<float>(distList.at(0).toDouble()),
+                                               static_cast<float>(distList.at(1).toDouble()));
+                }
+                else
+                {
+                    shift_center = cv::Point2f(0, 0);
                 }
             }
         }

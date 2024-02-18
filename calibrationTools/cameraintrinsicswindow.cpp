@@ -149,7 +149,9 @@ void CameraIntrinsicsWindow::slotShowUndistortImage()
     if(currentImagePath != "")
     {
         cv::Mat rgbFrame;
-        cv::Mat image = calibrationProcess.getUndistortImage(currentImagePath.toStdString());
+        cv::Point2f scale_focal(1, 1);
+        cv::Point2f shift_center(0, 0);
+        cv::Mat image = calibrationProcess.getUndistortImage(currentImagePath.toStdString(), scale_focal, shift_center);
         cv::cvtColor(image, rgbFrame, cv::COLOR_BGR2RGB);
         currentImage = QImage((uchar*)rgbFrame.data, rgbFrame.cols, rgbFrame.rows, QImage::Format_RGB888);
         imageShow->setNewQImage(currentImage);
@@ -160,6 +162,7 @@ void CameraIntrinsicsWindow::slotSaveCalibrateResult()
 {
     QString saveJsonPath = saveDir + "/" + "camera_intrinsic" + ".json";
     cv::Matx33d intrinsic;
+    cv::Size temp_size;
     std::vector<double> distortion;
     QJsonDocument doc;
     QByteArray data;
@@ -172,10 +175,24 @@ void CameraIntrinsicsWindow::slotSaveCalibrateResult()
     }
 
     calibrationProcess.getIntrinsicParam(intrinsic, distortion);
+    calibrationProcess.getImageSize(temp_size);
     calibrationProcess.saveCalibrationResult();
 
     jsonData.insert("device_type", "camera");
     jsonData.insert("camera_model", cameraModelBox->currentText());
+
+    QJsonArray sizeData;
+    sizeData << temp_size.width << temp_size.height;
+    jsonData.insert("camera_resolution", sizeData);
+
+    QJsonArray focalData;
+    focalData << 1.0f << 1.0f;
+    jsonData.insert("scale_focal_xy", focalData);
+
+    QJsonArray centerData;
+    centerData << 0.0f << 0.0f;
+    jsonData.insert("shift_center_xy", centerData);
+
     if(cameraModelBox->currentData().toInt() == 1)
     {
         QJsonArray tempData;

@@ -37,7 +37,7 @@ void RadarCameraManualWindow::slotLoadIntrinsic()
         return;
     QFileInfo imageFileInfo(fileName);
     openDataDir = imageFileInfo.path();
-    if(paramLoad.loadCameraIntrinsic(fileName, cameraInstrinsics, distortionCoefficients))
+    if(paramLoad.loadCameraIntrinsic(fileName, cameraInstrinsics, distortionCoefficients, scale_focal, shift_center))
     {
         intrinsicText->setText(fileName);
         std::ostringstream tempStr;
@@ -141,7 +141,7 @@ void RadarCameraManualWindow::slotLoadRadar()
         return;
     QFileInfo imageFileInfo(fileName);
     openDataDir = imageFileInfo.path();
-    if(loadRadarData(fileName))
+    if(radar_dataloader.loadRadarData(fileName, point3DList))
     {
         selectPointButton->setEnabled(true);
         this->commandText->append(tr("加载Radar数据成功!"));
@@ -251,7 +251,7 @@ void RadarCameraManualWindow::slotDegreeParamChange(double value)
             Eigen::AngleAxisf(yDegreeBox->value() / 180.0 * M_PI,
                               Eigen::Vector3f::UnitY()) *
             Eigen::AngleAxisf(zDegreeBox->value() / 180.0 * M_PI,
-                              Eigen::Vector3f::UnitY());
+                              Eigen::Vector3f::UnitZ());
     modification_matrix_.block(0, 0, 3, 3) = rot_tmp;
 
     temp = calibration_matrix_ * modification_matrix_;
@@ -323,6 +323,8 @@ void RadarCameraManualWindow::init()
     cameraInstrinsics = cv::Mat(3, 3, CV_32FC1, cv::Scalar::all(0));
     distortionCoefficients = cv::Mat(5, 1,CV_32FC1, cv::Scalar::all(0));
     homography = cv::Mat(3, 3, CV_32F, cv::Scalar::all (0));
+    scale_focal = cv::Point2f(1, 1);
+    shift_center = cv::Point2f(0, 0);
     calibration_matrix_.setIdentity();
     orign_calibration_matrix_.setIdentity();
     modification_matrix_.setIdentity();
@@ -694,70 +696,4 @@ bool RadarCameraManualWindow::loadExtrinsic(const QString &filePath)
         return result;
     }
     return result;
-}
-
-bool RadarCameraManualWindow::loadRadarData(const QString &filePath)
-{
-    point3DList.clear();
-    std::ifstream file(filePath.toStdString());
-    if (!file.is_open())
-    {
-        std::cout << "ERROR--->>> cannot open: " << filePath.toStdString() << std::endl;
-        return false;
-    }
-    std::string line;
-    getline(file, line);
-    // conti radar: the input point is the x and y coordinate
-    bool whether_first = true;
-    std::string first_time_str;
-    while (getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string str;
-        std::string time_str;
-        std::string position_x_str;
-        std::string position_y_str;
-        int index = 0;
-        while (getline(ss, str, ','))
-        {
-            if (index == 0) {
-                time_str = str;
-                if (whether_first) {
-                    first_time_str = str;
-                    whether_first = false;
-                } else {
-                    long long gap = std::stoll(time_str) - std::stoll(first_time_str);
-                    if (gap > 15 * 1e6) {
-                        std::cout << "radar point size: " << point3DList.size() << std::endl;
-                        return true;
-                    }
-                }
-            }
-            if (index == 4) {
-                position_x_str = str;
-            } else if (index == 5) {
-                position_y_str = str;
-            }
-            index++;
-        }
-
-        cv::Point3f radar_point;
-        radar_point.x = std::atof(position_x_str.c_str());
-        radar_point.y = std::atof(position_y_str.c_str());
-        radar_point.z = 0;
-        if (std::abs(radar_point.x) < 1e-6 || std::abs(radar_point.y) < 1e-6)
-        {
-            continue;
-        }
-        point3DList.push_back(radar_point);
-    }
-
-    if(point3DList.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
 }

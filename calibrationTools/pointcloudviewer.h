@@ -56,6 +56,7 @@ public:
     int setNewPointCloud(const QString &pcdFilePath);
     void clearPoints();
     void getPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr &result);
+    void setRadarPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr &points);
 
 protected:
     void enterEvent(QEvent *e);

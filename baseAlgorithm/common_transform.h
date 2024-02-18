@@ -38,7 +38,7 @@ public:
 
     void setTransform(const Matrix &matrix)
     {
-        rotation_ = Rotation(matrix.topLeftCorner<3, 3>());
+        rotation_ = Rotation( matrix.topLeftCorner<3, 3>());
         translation_ = matrix.topRightCorner<3, 1>();
     }
 
@@ -51,6 +51,15 @@ public:
         matrix.topLeftCorner<3, 3>() = rotation_.matrix();
         matrix.topRightCorner<3, 1>() = translation_;
         return matrix;
+    }
+
+    Affine affine() const
+    {
+        Matrix matrix;
+        matrix.setIdentity();
+        matrix.topLeftCorner<3, 3>() = rotation_.matrix();
+        matrix.topRightCorner<3, 1>() = translation_;
+        return Affine(matrix);
     }
 
     Transform inverse() const

@@ -25,6 +25,7 @@
 #include "calibrationTools/cameraintrinsicswindow.h"
 #include "calibrationTools/cameraverificationwindow.h"
 #include "calibrationTools/radarcameramanualwindow.h"
+#include "calibrationTools/lidarradarmanualwindow.h"
 #include "autoSampleMark/autodetection2dwindow.h"
 #include "drawShape/myshape.h"
 #include "controlwindow.h"
@@ -80,6 +81,7 @@ public slots:
     void slotCameraIntrinsics();
     void slotCameraVerification();
     void slotRadarCameraManual();
+    void slotLidarRadarManual();
 
     //about
     void slotAbout();
@@ -129,6 +131,7 @@ private:
     QAction *cameraIntrinsicsAction;
     QAction *cameraVerificationAction;
     QAction *radarCameraManualCalibratAction;
+    QAction *lidarRadarManualCalibratAction;
     //about
     QAction *aboutAction;
     QAction *userManualAction;
@@ -173,6 +176,7 @@ private:
     CameraIntrinsicsWindow * cameraIntrinsicsWindow;
     CameraVerificationWindow *cameraVerificationWindow;
     RadarCameraManualWindow *radarCameraManualWindow;
+    LidarRadarManualWindow *lidarRadarManualWindow;
 
     MarkDataType loadDataType;
     MyShape imgShape;

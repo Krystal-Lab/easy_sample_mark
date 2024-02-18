@@ -163,7 +163,8 @@ void CameraIntrinsCalibration::saveCalibrationResult()
     fout << std::endl;
 }
 
-cv::Mat CameraIntrinsCalibration::getUndistortImage(const std::string &image_path)
+cv::Mat CameraIntrinsCalibration::getUndistortImage(const std::string &image_path,
+                                                    const cv::Point2f &scale_focal, const cv::Point2f &shift_center)
 {
     cv::Mat mapx = cv::Mat(image_size, CV_32FC1);
     cv::Mat mapy = cv::Mat(image_size, CV_32FC1);
@@ -178,20 +179,18 @@ cv::Mat CameraIntrinsCalibration::getUndistortImage(const std::string &image_pat
             intrinsic_undis(r, c) = intrinsic_matrix(r, c);
         }
     }
+    intrinsic_undis(0, 0) *= scale_focal.x;
+    intrinsic_undis(1, 1) *= scale_focal.y;
+    intrinsic_undis(0,2) += shift_center.x;
+    intrinsic_undis(1,2) += shift_center.y;
     if(this->camera_model == 1)
     {
         // 摄像机的5个畸变系数，(k1,k2,p1,p2[,k3[,k4,k5,k6]])
-//        intrinsic_undis(0, 0) /= 4;
-//        intrinsic_undis(1, 1) /= 4;
-//        intrinsic_undis(0,2) *= 4;
-//        intrinsic_undis(1,2) *= 4;
 //        cv::initUndistortRectifyMap(intrinsic_matrix, pinhole_distortion_coeffs,
-//                                    R, intrinsic_undis,
-//                                    cv::Size(intrinsic_undis(0, 2) * 2,
-//                                             intrinsic_undis(1, 2) * 2),
-//                                             CV_32FC1, mapx, mapy);
+//                                    R, intrinsic_undis, image_size,
+//                                     CV_32FC1, mapx, mapy);
 //        cv::remap(image, result, mapx, mapy, cv::INTER_LINEAR);
-        cv::undistort(image, result, intrinsic_matrix, pinhole_distortion_coeffs);
+        cv::undistort(image, result, intrinsic_undis, pinhole_distortion_coeffs);
     }
     else if(this->camera_model == 2)
     {
@@ -202,9 +201,7 @@ cv::Mat CameraIntrinsCalibration::getUndistortImage(const std::string &image_pat
 //        cv::fisheye::initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, R,
 //                                             intrinsic_undis, image_size, CV_32FC1, mapx, mapy);
         cv::fisheye::initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, R,
-                                             cv::getOptimalNewCameraMatrix(intrinsic_matrix, distortion_coeffs,
-                                                                           image_size, 1, image_size, 0),
-                                             image_size, CV_32FC1, mapx, mapy);
+                                             intrinsic_undis, image_size, CV_32FC1, mapx, mapy);
         // result = testImage.clone();
         cv::remap(image, result, mapx, mapy, cv::INTER_LINEAR, cv::BORDER_CONSTANT);
     }
@@ -251,7 +248,9 @@ void CameraIntrinsCalibration::saveUndistortImage(const std::vector<std::string>
     for (size_t i = 0; i < images_list.size(); i++)
     {
         std::cout << "Frame #" << i + 1 << "..." << std::endl;
-        cv::Mat result = getUndistortImage(images_list[i]);
+        cv::Point2f scale_focal(1, 1);
+        cv::Point2f shift_center(0, 0);
+        cv::Mat result = getUndistortImage(images_list[i], scale_focal, shift_center);
         std::string imageFileName;
         std::stringstream StrStm;
         StrStm << saveResultDir << "/"<< i + 1;
@@ -286,6 +285,11 @@ void CameraIntrinsCalibration::getIntrinsicParam(cv::Matx33d &intrinsic, std::ve
         distortion.push_back(distortion_coeffs[2]);
         distortion.push_back(distortion_coeffs[3]);
     }
+}
+
+void CameraIntrinsCalibration::getImageSize(cv::Size &size)
+{
+    size = this->image_size;
 }
 
 void CameraIntrinsCalibration::getCorners(const std::vector<std::string> &images_list)

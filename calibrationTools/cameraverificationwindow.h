@@ -16,7 +16,7 @@
 #include "helpers/convertcvqimage.h"
 #include "utilityGUI/customWindow/mytextbrowser.h"
 #include "imagelabel.h"
-#include "saveMarkData/calibrationparamload.h"
+#include "saveData/calibrationparamload.h"
 #include "calibration/camera_intrinsic/cameraintrinscalibration.h"
 #include "calibration/camera_intrinsic/fisheyecameraundistortion.h"
 #include "calibration/camera_intrinsic/CalibrationHarp.hpp"
@@ -73,6 +73,8 @@ private:
 
     cv::Mat cameraInstrinsics;
     cv::Mat distortionCoefficients;
+    cv::Point2f scale_focal;
+    cv::Point2f shift_center;
 
     CalibrationParamLoad paramLoad;
     CameraIntrinsCalibration calibrationProcess;

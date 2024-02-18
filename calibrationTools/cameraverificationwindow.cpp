@@ -85,7 +85,7 @@ void CameraVerificationWindow::slotVerification()
         if(undistortModelBox->currentData().toInt() == 1)
         {
             calibrationProcess.setCameraParam(cameraModelBox->currentData().toInt(), cameraInstrinsics, distortionCoefficients);
-            cv::Mat image = calibrationProcess.getUndistortImage(currentImagePath.toStdString());
+            cv::Mat image = calibrationProcess.getUndistortImage(currentImagePath.toStdString(), scale_focal, shift_center);
             cv::cvtColor(image, rgbFrame, cv::COLOR_BGR2RGB);
             currentImage = QImage((uchar*)rgbFrame.data, rgbFrame.cols, rgbFrame.rows, QImage::Format_RGB888);
         }
@@ -155,7 +155,7 @@ void CameraVerificationWindow::slotLoadCameraIntrinsic()
         return;
     QFileInfo imageFileInfo(fileName);
     openDataDir = imageFileInfo.path();
-    if(paramLoad.loadCameraIntrinsic(fileName, cameraInstrinsics, distortionCoefficients))
+    if(paramLoad.loadCameraIntrinsic(fileName, cameraInstrinsics, distortionCoefficients, scale_focal, shift_center))
     {
         intrinsicText->setText(fileName);
         std::ostringstream tempStr;
@@ -184,6 +184,8 @@ void CameraVerificationWindow::init()
     isLoadIntrinsic = false;
     cameraInstrinsics = cv::Mat(3, 3, CV_32FC1, cv::Scalar::all(0));
     distortionCoefficients = cv::Mat(5, 1,CV_32FC1, cv::Scalar::all(0));
+    scale_focal = cv::Point2f(1, 1);
+    shift_center = cv::Point2f(0, 0);
 }
 
 void CameraVerificationWindow::initUI()

@@ -29,13 +29,15 @@ public:
     int getSuccessImage();
     void saveCalibrationResult();
 
-    cv::Mat getUndistortImage(const std::string &image_path);
+    cv::Mat getUndistortImage(const std::string &image_path,
+                              const cv::Point2f &scale_focal, const cv::Point2f &shift_center);
     cv::Mat getDrawCornerImage(const std::string &image_path, const int index);
 
     void saveDrawCornerImage(const std::vector<std::string> &images_list);
     void saveUndistortImage(const std::vector<std::string> &images_list);
 
     void getIntrinsicParam(cv::Matx33d &intrinsic, std::vector<double> &distortion);
+    void getImageSize(cv::Size &size);
 
 private:
     void getCorners(const std::vector<std::string> &images_list);
